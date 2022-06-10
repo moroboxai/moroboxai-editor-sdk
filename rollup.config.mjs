@@ -85,9 +85,9 @@ export default [
     input: 'src/index.ts',
     output: {
       exports: 'named',
-      file: 'lib/umd/moroboxai-player-sdk.js',
+      file: 'lib/umd/moroboxai-editor-sdk.js',
       format: 'umd',
-      name: 'MoroboxAIPlayerSDK',
+      name: 'MoroboxAIEditorSDK',
     },
     plugins: developmentPlugins('lib/umd'),
   },
@@ -95,9 +95,9 @@ export default [
     input: 'src/index.ts',
     output: {
       exports: 'named',
-      file: 'lib/umd/moroboxai-player-sdk.min.js',
+      file: 'lib/umd/moroboxai-editor-sdk.min.js',
       format: 'umd',
-      name: 'MoroboxAIPlayerSDK',
+      name: 'MoroboxAIEditorSDK',
     },
     plugins: productionPlugins('lib'),
   },
