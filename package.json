@@ -1,6 +1,6 @@
 {
   "name": "moroboxai-editor-sdk",
-  "version": "0.1.1-alpha.1",
+  "version": "0.1.1-alpha.2",
   "description": "MoroboxAI SDK for embedding the code editor",
   "author": "moroboxai",
   "main": "./lib/cjs/index.js",

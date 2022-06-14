@@ -52,29 +52,35 @@ function createElement(tagName: string, className?: string): HTMLElement {
 }
 
 const STYLES = {
-    'editor': {
+    'root': {
         'background-color': '#1e1e1e',
         'overflow': 'hidden'
     },
     'body': {
-        'padding': '0.5em',
-        'padding-top': '2em',
-        'padding-bottom': '1em'
+        'width': '100%',
+        'height': '100%',
+        'display': 'flex',
+        'flex-direction': 'column'
     },
     'toolbar': {
-        'position': 'relative',
         'flex-grow': '1',
-        'top': '-1em',
         'padding-left': '1em',
         'padding-right': '1em',
+        'padding-top': '0.5em',
+        'padding-bottom': '1em',
         'display': 'flex',
-        'flex-direction': 'row'
+        'flex-direction': 'row',
+        'gap': '0.5em'
     },
     'language': {
         'font-weight': 'bold',
         'color': '#4e6c8b',
         'flex-grow': '1',
         'text-align': 'right'
+    },
+    'editor': {
+        'width': '100%',
+        'height': '100%'
     }
 }
 
@@ -115,7 +121,16 @@ export class Editor implements IEditor {
 
         {
             const div = createElement('div', 'moroboxai-editor') as HTMLDivElement;
-            Object.assign(div.style, STYLES['editor']);
+            Object.assign(div.style, STYLES['root']);
+
+            if (this._options.width !== undefined) {
+                div.style.width = this._options.width;
+            }
+
+            if (this._options.height !== undefined) {
+                div.style.height = this._options.height;
+            }
+
             this._ui.base = div;
             this._ui.element.appendChild(div);
         }
@@ -134,12 +149,8 @@ export class Editor implements IEditor {
 
             {
                 const div = createElement('div') as HTMLDivElement;
-                if (this._options.width !== undefined) {
-                    div.style.width = this._options.width;
-                }
-                if (this._options.height !== undefined) {
-                    div.style.height = this._options.height;
-                }
+                Object.assign(div.style, STYLES['editor']);
+
                 this._ui.wrapper = div;
                 body.appendChild(div);
             }
