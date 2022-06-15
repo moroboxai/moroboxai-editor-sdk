@@ -3,6 +3,8 @@
 [![NPM version](https://img.shields.io/npm/v/moroboxai-editor-sdk.svg)](https://www.npmjs.com/package/moroboxai-editor-sdk)
 ![Node.js CI](https://github.com/moroboxai/moroboxai-editor-sdk/workflows/Node.js%20CI/badge.svg)
 [![gitHub license](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/moroboxai/moroboxai-editor-sdk/blob/master/LICENSE)
+[![Code Quality: Javascript](https://img.shields.io/lgtm/grade/javascript/g/moroboxai/moroboxai-editor-sdk.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/moroboxai/moroboxai-editor-sdk/context:javascript)
+[![Total Alerts](https://img.shields.io/lgtm/alerts/g/moroboxai/moroboxai-editor-sdk.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/moroboxai/moroboxai-editor-sdk/alerts)
 
 This package provides the core functionalities for embedding the code editor of [MoroboxAI](https://github.com/moroboxai) on various platforms, but lacks the gutter that is required for some platform-specific functionalities.
 
