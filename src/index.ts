@@ -34,7 +34,7 @@ export interface IEditorInstance {
 
 export interface IEditorFactoryOptions {
     element: HTMLElement;
-    language: string;
+    language: Language;
 }
 
 export interface IEditorFactory {
