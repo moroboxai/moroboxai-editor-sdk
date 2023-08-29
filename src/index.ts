@@ -1,14 +1,33 @@
+export type Language = "javascript" | "lua";
+
+export const DEFAULT_LANGUAGE: Language = "javascript";
+
+export interface OnLoadCallback {
+    (language: Language, value: string): void
+}
+
+export interface OnUnloadCallback {
+    (): void
+}
+
 export interface IEditorOptions {
     element?: Element | Element[] | HTMLCollectionOf<Element>;
-    language?: string;
+    // Language of the script
+    language?: Language;
+    // URL of the script to load
+    url?: string;
+    // Direct script
     value?: string;
+    // Width of the editor
     width?: string;
+    // Height of the editor
     height?: string;
-    onLoad?: (value: string) => void;
-    onUnload?: () => void;
+    onLoad?: OnLoadCallback;
+    onUnload?: OnUnloadCallback;
 }
 
 export interface IEditorInstance {
+    language: Language;
     value: string;
     remove(): void;
 }
@@ -23,19 +42,25 @@ export interface IEditorFactory {
 }
 
 export interface IEditor {
-    // Text in the editor
+    // Get/Set the language
+    language: Language;
+
+    // Get/Set the URL of the code
+    url?: string;
+
+    // Get/Set the text
     value: string;
 
     /**
      * Register the onLoad callback.
      * @param {Function} callback - Callback
      */
-    onLoad(callback?: (value: string) => void): void;
+    onLoad(callback?: OnLoadCallback): void;
 
     /**
      * Register the onUnload callback.
      */
-    onUnload(callback?: () => void): void;
+    onUnload(callback?: OnUnloadCallback): void;
 
     /**
      * Remove the editor from document.
@@ -96,8 +121,8 @@ export class Editor implements IEditor {
         wrapper?: HTMLDivElement;
         editor?: IEditorInstance;
     } = {};
-    private _onLoadCallback?: (value: string) => void;
-    private _onUnloadCallback?: () => void;
+    private _onLoadCallback?: OnLoadCallback;
+    private _onUnloadCallback?: OnUnloadCallback;
 
     constructor(factory: IEditorFactory, element: Element, options: IEditorOptions) {
         this._factory = factory;
@@ -184,16 +209,17 @@ export class Editor implements IEditor {
         {
             this._ui.editor = this._factory({
                 element: this._ui.wrapper,
-                language: this._options.language || 'javascript'
+                language: this._options.language || DEFAULT_LANGUAGE
             });
 
             this._ui.editor.value = this._options.value || '';
+            this.url = this._options.url;
         }
     }
 
     private _notifyLoad() {
         if (this._onLoadCallback) {
-            this._onLoadCallback(this.value);
+            this._onLoadCallback("javascript", this.value);
         }
     }
 
@@ -204,10 +230,31 @@ export class Editor implements IEditor {
     }
 
     // IEditor functions
-    set value(text: string) {
+    get language(): Language {
         if (this._ui.editor !== undefined) {
-            this._ui.editor.value = text;
+            return this._ui.editor.language;
         }
+
+        return DEFAULT_LANGUAGE;
+    }
+    
+    set language(value: Language) {
+        if (this._ui.editor !== undefined) {
+            this._ui.editor.language = value;
+        }
+    }
+
+    get url(): string | undefined {
+        return this._options.url;
+    }
+    
+    set url(value: string | undefined) {
+        this._options.url = value;
+        if (this._options.url === undefined) {
+            return;
+        }
+
+        fetch(this._options.url).then(response => response.text()).then(text => this.value = text);
     }
 
     get value(): string {
@@ -218,11 +265,17 @@ export class Editor implements IEditor {
         return "";
     }
 
-    onLoad(callback?: (value: string) => void): void {
+    set value(text: string) {
+        if (this._ui.editor !== undefined) {
+            this._ui.editor.value = text;
+        }
+    }
+
+    onLoad(callback?: OnLoadCallback): void {
         this._onLoadCallback = callback;
     }
 
-    onUnload(callback?: () => void): void {
+    onUnload(callback?: OnUnloadCallback): void {
         this._onUnloadCallback = callback;
     }
 
@@ -245,7 +298,7 @@ export class Editor implements IEditor {
  */
 export function defaultOptions(): IEditorOptions {
     return {
-        language: 'javascript'
+        language: DEFAULT_LANGUAGE
     };
 }
 
