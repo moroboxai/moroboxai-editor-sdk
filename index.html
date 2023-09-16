@@ -1,0 +1,142 @@
+<html>
+    <head>
+        <title>MoroboxAIEditorSDK Sample</title>
+    </head>
+
+    <body class="vertical">
+        <div class="horizontal">
+            <!-- Root element the editor will be attached to -->
+            <div id="editor"></div>
+        </div>
+        <div class="info horizontal">
+            <button id="attach">Attach</button>
+        </div>
+        <div class="info">
+            <!-- Some debug information -->
+            <div>
+                moroboxai-editor-sdk v<span
+                    id="moroboxai-editor-sdk-version"
+                ></span>
+            </div>
+        </div>
+    </body>
+    <script type="module">
+        import * as MoroboxAIEditorSDK from "./src/index.ts";
+
+        document.getElementById("moroboxai-editor-sdk-version").innerText =
+            MoroboxAIEditorSDK.VERSION;
+
+        /**
+         * MoroboxAIEditorSDK requires a factory that creates the editable text area.
+         *
+         * This is made so that the text area part can be implemented in various ways
+         * such as using the Ace Editor.
+         *
+         * In this example, the text area is simply implemented with a textarea element.
+         */
+        class EditorInstance {
+            /**
+             * Spawn a new textarea attached to the root element.
+             */
+            constructor(options) {
+                this.language = options.language;
+                this.element = options.element;
+                this.textArea = document.createElement("textarea");
+                this.element.appendChild(this.textArea);
+            }
+
+            /**
+             * Get/Set the value of the textarea.
+             */
+            get value() {
+                return this.textArea.textContent;
+            }
+
+            set value(code) {
+                this.textArea.textContent = code;
+            }
+
+            /**
+             * Remove the generated textarea when the editor is removed.
+             */
+            remove() {
+                this.textArea.remove();
+            }
+        }
+
+        let editor = null;
+        const attachButton = document.getElementById("attach");
+
+        function attach() {
+            if (editor === null) {
+                // Attach editor to the DOM
+                editor = MoroboxAIEditorSDK.init(
+                    // Gutter for making the editor work
+                    (options) => new EditorInstance(options),
+                    // Root element of the editor
+                    document.getElementById("editor"),
+                    // Options for the player
+                    {
+                        url: "https://raw.githubusercontent.com/moroboxai/moroboxai-games/master/piximoroxel8ai-sample/sample/agent.js",
+                        width: "35em",
+                        height: "30em",
+                        onLoad: (language, code) =>
+                            console.log("load", language, code),
+                        onUnload: () => console.log("unload")
+                    }
+                );
+
+                attachButton.textContent = "Detach Editor";
+            } else {
+                // Remove editor from DOM
+                editor.remove();
+                editor = null;
+                attachButton.textContent = "Attach Editor";
+            }
+        }
+
+        attachButton.onclick = () => attach();
+        attach();
+    </script>
+
+    <style>
+        body {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+        }
+
+        .vertical {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .horizontal {
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            justify-content: center;
+        }
+
+        #editor {
+            background: #1e1e1e;
+            border-radius: 1em;
+            box-shadow: 4px 4px 8px rgb(0 0 0 / 50%);
+            padding: 1em 0.5em 1em;
+            overflow: hidden;
+        }
+
+        #editor textarea {
+            width: 100%;
+            height: 100%;
+            resize: none;
+        }
+
+        .info {
+            margin-top: 2em;
+            text-align: center;
+        }
+    </style>
+</html>

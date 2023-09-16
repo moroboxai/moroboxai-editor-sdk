@@ -1,13 +1,18 @@
+/**
+ * Version of the SDK.
+ */
+export const VERSION: string = "0.1.0-alpha.5";
+
 export type Language = "javascript" | "lua";
 
 export const DEFAULT_LANGUAGE: Language = "javascript";
 
 export interface OnLoadCallback {
-    (language: Language, value: string): void
+    (language: Language, value: string): void;
 }
 
 export interface OnUnloadCallback {
-    (): void
+    (): void;
 }
 
 export interface IEditorOptions {
@@ -77,37 +82,37 @@ function createElement(tagName: string, className?: string): HTMLElement {
 }
 
 const STYLES = {
-    'root': {
-        'background-color': '#1e1e1e',
-        'overflow': 'hidden'
+    root: {
+        "background-color": "#1e1e1e",
+        overflow: "hidden"
     },
-    'body': {
-        'width': '100%',
-        'height': '100%',
-        'display': 'flex',
-        'flex-direction': 'column'
+    body: {
+        width: "100%",
+        height: "100%",
+        display: "flex",
+        "flex-direction": "column"
     },
-    'toolbar': {
-        'flex-grow': '1',
-        'padding-left': '1em',
-        'padding-right': '1em',
-        'padding-top': '0.5em',
-        'padding-bottom': '1em',
-        'display': 'flex',
-        'flex-direction': 'row',
-        'gap': '0.5em'
+    toolbar: {
+        "flex-grow": "1",
+        "padding-left": "1em",
+        "padding-right": "1em",
+        "padding-top": "0.5em",
+        "padding-bottom": "1em",
+        display: "flex",
+        "flex-direction": "row",
+        gap: "0.5em"
     },
-    'language': {
-        'font-weight': 'bold',
-        'color': '#4e6c8b',
-        'flex-grow': '1',
-        'text-align': 'right'
+    language: {
+        "font-weight": "bold",
+        color: "#4e6c8b",
+        "flex-grow": "1",
+        "text-align": "right"
     },
-    'editor': {
-        'width': '100%',
-        'height': '100%'
+    editor: {
+        width: "100%",
+        height: "100%"
     }
-}
+};
 
 export class Editor implements IEditor {
     private _factory: IEditorFactory;
@@ -124,16 +129,20 @@ export class Editor implements IEditor {
     private _onLoadCallback?: OnLoadCallback;
     private _onUnloadCallback?: OnUnloadCallback;
 
-    constructor(factory: IEditorFactory, element: Element, options: IEditorOptions) {
+    constructor(
+        factory: IEditorFactory,
+        element: Element,
+        options: IEditorOptions
+    ) {
         this._factory = factory;
         this._options = options;
 
         this._onLoadCallback = options.onLoad;
         this._onUnloadCallback = options.onUnload;
-        
+
         if (isHTMLElement(element)) {
             this._ui.element = element as HTMLElement;
-            this._options = {...options};
+            this._options = { ...options };
 
             this._attach();
         }
@@ -145,8 +154,11 @@ export class Editor implements IEditor {
         }
 
         {
-            const div = createElement('div', 'moroboxai-editor') as HTMLDivElement;
-            Object.assign(div.style, STYLES['root']);
+            const div = createElement(
+                "div",
+                "moroboxai-editor"
+            ) as HTMLDivElement;
+            Object.assign(div.style, STYLES["root"]);
 
             if (this._options.width !== undefined) {
                 div.style.width = this._options.width;
@@ -161,20 +173,26 @@ export class Editor implements IEditor {
         }
 
         {
-            const body = createElement('div', 'moroboxai-body') as HTMLDivElement;
-            Object.assign(body.style, STYLES['body']);
+            const body = createElement(
+                "div",
+                "moroboxai-body"
+            ) as HTMLDivElement;
+            Object.assign(body.style, STYLES["body"]);
             this._ui.base.appendChild(body);
 
             {
-                const div = createElement('div', 'moroboxai-toolbar') as HTMLDivElement;
-                Object.assign(div.style, STYLES['toolbar']);
+                const div = createElement(
+                    "div",
+                    "moroboxai-toolbar"
+                ) as HTMLDivElement;
+                Object.assign(div.style, STYLES["toolbar"]);
                 this._ui.toolbar = div;
                 body.appendChild(div);
             }
 
             {
-                const div = createElement('div') as HTMLDivElement;
-                Object.assign(div.style, STYLES['editor']);
+                const div = createElement("div") as HTMLDivElement;
+                Object.assign(div.style, STYLES["editor"]);
 
                 this._ui.wrapper = div;
                 body.appendChild(div);
@@ -182,27 +200,30 @@ export class Editor implements IEditor {
         }
 
         {
-            const input = createElement('input') as HTMLInputElement;
-            input.type = 'button';
-            input.value = 'Load';
+            const input = createElement("input") as HTMLInputElement;
+            input.type = "button";
+            input.value = "Load";
             input.onclick = () => this._notifyLoad();
             this._ui.loadButton = input;
             this._ui.toolbar.appendChild(input);
         }
 
         {
-            const input = createElement('input') as HTMLInputElement;
-            input.type = 'button';
-            input.value = 'Unload';
+            const input = createElement("input") as HTMLInputElement;
+            input.type = "button";
+            input.value = "Unload";
             input.onclick = () => this._notifyUnload();
             this._ui.unloadButton = input;
             this._ui.toolbar.appendChild(input);
         }
 
         {
-            const span = createElement('span', 'moroboxai-language') as HTMLSpanElement;
-            Object.assign(span.style, STYLES['language']);
-            span.textContent = 'Javascript';
+            const span = createElement(
+                "span",
+                "moroboxai-language"
+            ) as HTMLSpanElement;
+            Object.assign(span.style, STYLES["language"]);
+            span.textContent = "Javascript";
             this._ui.toolbar.appendChild(span);
         }
 
@@ -212,7 +233,7 @@ export class Editor implements IEditor {
                 language: this._options.language || DEFAULT_LANGUAGE
             });
 
-            this._ui.editor.value = this._options.value || '';
+            this._ui.editor.value = this._options.value || "";
             this.url = this._options.url;
         }
     }
@@ -237,7 +258,7 @@ export class Editor implements IEditor {
 
         return DEFAULT_LANGUAGE;
     }
-    
+
     set language(value: Language) {
         if (this._ui.editor !== undefined) {
             this._ui.editor.language = value;
@@ -247,14 +268,16 @@ export class Editor implements IEditor {
     get url(): string | undefined {
         return this._options.url;
     }
-    
+
     set url(value: string | undefined) {
         this._options.url = value;
         if (this._options.url === undefined) {
             return;
         }
 
-        fetch(this._options.url).then(response => response.text()).then(text => this.value = text);
+        fetch(this._options.url)
+            .then((response) => response.text())
+            .then((text) => (this.value = text));
     }
 
     get value(): string {
@@ -302,7 +325,9 @@ export function defaultOptions(): IEditorOptions {
     };
 }
 
-function isEditorOptions(_?: | IEditorOptions | Element | Element[] | HTMLCollectionOf<Element>): _ is IEditorOptions {
+function isEditorOptions(
+    _?: IEditorOptions | Element | Element[] | HTMLCollectionOf<Element>
+): _ is IEditorOptions {
     return _ !== undefined && !isElementArray(_) && !("className" in _);
 }
 
@@ -310,11 +335,17 @@ function isHTMLElement(_: Element | HTMLElement): _ is HTMLElement {
     return "dataset" in _;
 }
 
-function isElementArray(_: IEditorOptions | Element | Element[] | HTMLCollectionOf<Element>): _ is Element[] | HTMLCollectionOf<Element> {
+function isElementArray(
+    _: IEditorOptions | Element | Element[] | HTMLCollectionOf<Element>
+): _ is Element[] | HTMLCollectionOf<Element> {
     return "length" in _;
 }
 
-function createEditor(factory: IEditorFactory, element: Element, options: IEditorOptions): IEditor {
+function createEditor(
+    factory: IEditorFactory,
+    element: Element,
+    options: IEditorOptions
+): IEditor {
     return new Editor(factory, element, options);
 }
 
@@ -324,8 +355,18 @@ function createEditor(factory: IEditorFactory, element: Element, options: IEdito
  * @param {HTMLElement} element Element to wrap
  * @param {IEditor} options Options for initializing the editor
  */
-export function init(factory: IEditorFactory, element: IEditorOptions | Element | Element[] | HTMLCollectionOf<Element> | undefined, options?: IEditorOptions) : IEditor | IEditor[] {
-    let _elements: undefined | Element | Element[] | HTMLCollectionOf<Element> = undefined;
+export function init(
+    factory: IEditorFactory,
+    element:
+        | IEditorOptions
+        | Element
+        | Element[]
+        | HTMLCollectionOf<Element>
+        | undefined,
+    options?: IEditorOptions
+): IEditor | IEditor[] {
+    let _elements: undefined | Element | Element[] | HTMLCollectionOf<Element> =
+        undefined;
     let _options: IEditorOptions = defaultOptions();
 
     if (isEditorOptions(element)) {
@@ -335,7 +376,7 @@ export function init(factory: IEditorFactory, element: IEditorOptions | Element 
     }
 
     if (options !== undefined) {
-        _options = {..._options, ...options};
+        _options = { ..._options, ...options };
     }
 
     if (_elements == undefined) {
@@ -350,5 +391,7 @@ export function init(factory: IEditorFactory, element: IEditorOptions | Element 
         return createEditor(factory, _elements, _options);
     }
 
-    return Array.prototype.map.call(_elements, _ => createEditor(factory, _, _options)) as IEditor[];
+    return Array.prototype.map.call(_elements, (_) =>
+        createEditor(factory, _, _options)
+    ) as IEditor[];
 }

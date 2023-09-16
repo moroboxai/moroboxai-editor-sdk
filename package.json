@@ -1,49 +1,33 @@
 {
-  "name": "moroboxai-editor-sdk",
-  "version": "0.1.1-alpha.4",
-  "description": "MoroboxAI SDK for embedding the code editor",
-  "author": "moroboxai",
-  "main": "./lib/cjs/index.js",
-  "module": "./lib/es/index.js",
-  "unpkg": "./lib/umd/moroboxai-editor-sdk.min.js",
-  "jsdelivr": "./lib/umd/moroboxai-editor-sdk.min.js",
-  "types": "./lib/cjs/index.d.ts",
-  "scripts": {
-    "build": "rollup -c",
-    "build-dev": "rollup -c -w",
-    "prepublish": "npm run build"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/moroboxai/moroboxai-editor-sdk.git"
-  },
-  "keywords": [],
-  "license": "MIT",
-  "bugs": {
-    "url": "https://github.com/moroboxai/moroboxai-editor-sdk/issues"
-  },
-  "homepage": "https://github.com/moroboxai/moroboxai-editor-sdk#readme",
-  "devDependencies": {
-    "@babel/cli": "^7.17.6",
-    "@babel/core": "^7.17.9",
-    "@babel/plugin-transform-runtime": "^7.17.0",
-    "@babel/preset-env": "^7.16.11",
-    "@babel/preset-react": "^7.16.7",
-    "@rollup/plugin-babel": "^5.3.1",
-    "@rollup/plugin-commonjs": "^17.1.0",
-    "@rollup/plugin-node-resolve": "^11.2.1",
-    "@rollup/plugin-replace": "^2.4.2",
-    "@rollup/plugin-typescript": "^8.3.1",
-    "rollup": "^2.70.1",
-    "rollup-plugin-peer-deps-external": "^2.2.4",
-    "rollup-plugin-terser": "^7.0.2",
-    "ts-node": "^10.7.0",
-    "tslib": "^2.3.1",
-    "typescript": "^4.6.3"
-  },
-  "babel": {
-    "presets": [
-      "@babel/preset-env"
-    ]
-  }
+    "name": "moroboxai-editor-sdk",
+    "version": "0.1.1-alpha.5",
+    "description": "MoroboxAI SDK for embedding the code editor",
+    "author": "moroboxai",
+    "main": "./lib/cjs/index.cjs",
+    "module": "./lib/es/index.js",
+    "unpkg": "./lib/umd/moroboxai-editor-sdk.min.js",
+    "jsdelivr": "./lib/umd/moroboxai-editor-sdk.min.js",
+    "types": "./lib/es/index.d.ts",
+    "scripts": {
+        "dev": "vite",
+        "build": "vite build --config vite.config.lib.js && tsc && vite build",
+        "preview": "vite preview",
+        "prepublish": "npm run build"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/moroboxai/moroboxai-editor-sdk.git"
+    },
+    "keywords": [],
+    "license": "MIT",
+    "bugs": {
+        "url": "https://github.com/moroboxai/moroboxai-editor-sdk/issues"
+    },
+    "homepage": "https://github.com/moroboxai/moroboxai-editor-sdk#readme",
+    "devDependencies": {
+        "@types/node": "^20.6.0",
+        "path": "^0.12.7",
+        "typescript": "^4.6.3",
+        "vite": "^2.8.6"
+    }
 }
