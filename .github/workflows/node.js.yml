@@ -49,16 +49,16 @@ jobs:
           cp -r dist/** build/web/
           touch build/web/.nojekyll
       - name: Upload Artifact
-        if: github.ref == 'refs/heads/main'
+        if: github.ref == 'refs/heads/master'
         uses: actions/upload-artifact@v1
         with:
           name: web
           path: build/web
       - name: Install rsync 📚
-        if: github.ref == 'refs/heads/main'
+        if: github.ref == 'refs/heads/master'
         uses: GuillaumeFalourd/setup-rsync@v1.1
       - name: Deploy to GitHub Pages 🚀
-        if: github.ref == 'refs/heads/main'
+        if: github.ref == 'refs/heads/master'
         uses: JamesIves/github-pages-deploy-action@releases/v4
         with:
           branch: gh-pages
