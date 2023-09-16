@@ -1,0 +1,66 @@
+<html>
+    <head>
+        <title>MoroboxAIEditorSDK Sample</title>
+      <script type="module" crossorigin src="/moroboxai-editor-sdk/assets/index.f238e725.js"></script>
+    </head>
+
+    <body class="vertical">
+        <div class="horizontal">
+            <!-- Root element the editor will be attached to -->
+            <div id="editor"></div>
+        </div>
+        <div class="info horizontal">
+            <button id="attach">Attach</button>
+        </div>
+        <div class="info">
+            <!-- Some debug information -->
+            <div>
+                moroboxai-editor-sdk v<span
+                    id="moroboxai-editor-sdk-version"
+                ></span>
+            </div>
+        </div>
+    </body>
+    
+
+    <style>
+        body {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+        }
+
+        .vertical {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .horizontal {
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            justify-content: center;
+        }
+
+        #editor {
+            background: #1e1e1e;
+            border-radius: 1em;
+            box-shadow: 4px 4px 8px rgb(0 0 0 / 50%);
+            padding: 1em 0.5em 1em;
+            overflow: hidden;
+        }
+
+        #editor textarea {
+            width: 100%;
+            height: 100%;
+            resize: none;
+        }
+
+        .info {
+            margin-top: 2em;
+            text-align: center;
+        }
+    </style>
+</html>
