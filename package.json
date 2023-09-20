@@ -1,16 +1,17 @@
 {
     "name": "moroboxai-editor-sdk",
-    "version": "0.1.1-alpha.5",
+    "version": "0.1.1-alpha.6",
     "description": "MoroboxAI SDK for embedding the code editor",
     "author": "moroboxai",
     "main": "./lib/cjs/index.cjs",
     "module": "./lib/es/index.js",
     "unpkg": "./lib/umd/moroboxai-editor-sdk.min.js",
     "jsdelivr": "./lib/umd/moroboxai-editor-sdk.min.js",
-    "types": "./lib/es/index.d.ts",
+    "types": "./lib/index.d.ts",
     "scripts": {
         "dev": "vite",
-        "build": "vite build --config vite.config.lib.js && tsc && vite build",
+        "build": "vite build --config vite.config.lib.js && tsc --emitDeclarationOnly && vite build",
+        "build:vite": "vite build",
         "preview": "vite preview",
         "prepublish": "npm run build"
     },
@@ -25,9 +26,9 @@
     },
     "homepage": "https://github.com/moroboxai/moroboxai-editor-sdk#readme",
     "devDependencies": {
-        "@types/node": "^20.6.0",
+        "@types/node": "^20.6.2",
         "path": "^0.12.7",
-        "typescript": "^4.6.3",
-        "vite": "^2.8.6"
+        "typescript": "^5.2.2",
+        "vite": "^4.4.9"
     }
 }

@@ -12,19 +12,10 @@
             <button id="attach"></button>
         </div>
         <div class="info">
-            <!-- Some debug information -->
-            <div>
-                moroboxai-editor-sdk v<span
-                    id="moroboxai-editor-sdk-version"
-                ></span>
-            </div>
         </div>
     </body>
     <script type="module">
         import * as MoroboxAIEditorSDK from "./src/index.ts";
-
-        document.getElementById("moroboxai-editor-sdk-version").innerText =
-            MoroboxAIEditorSDK.VERSION;
 
         /**
          * MoroboxAIEditorSDK requires a factory that creates the editable text area.
@@ -77,9 +68,9 @@
                     document.getElementById("editor"),
                     // Options for the player
                     {
-                        url: "https://raw.githubusercontent.com/moroboxai/moroboxai-games/master/piximoroxel8ai-sample/sample/agent.js",
-                        width: "35em",
-                        height: "30em",
+                        url: "https://raw.githubusercontent.com/moroboxai/moroboxai-games/master/pong/agent.js",
+                        width: "500px",
+                        height: "400px",
                         onLoad: (language, code) =>
                             console.log("load", language, code),
                         onUnload: () => console.log("unload")

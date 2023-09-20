@@ -1,7 +1,7 @@
 /**
  * Version of the SDK.
  */
-export const VERSION: string = "0.1.1-alpha.5";
+export const VERSION: string = "__VERSION__";
 
 export type Language = "javascript" | "lua";
 
