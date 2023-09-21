@@ -5,6 +5,31 @@ export const VERSION: string = "__VERSION__";
 
 export type Language = "javascript" | "lua";
 
+interface ILanguageOptions {
+    name: string;
+    language: Language;
+    ext: string;
+    style: any;
+}
+const LANGUAGE_OPTIONS: { [language: string]: ILanguageOptions } = {
+    javascript: {
+        name: "Javascript",
+        language: "javascript",
+        ext: "js",
+        style: {
+            color: "#888b4e"
+        }
+    },
+    lua: {
+        name: "Lua",
+        language: "lua",
+        ext: "lua",
+        style: {
+            color: "#4e6c8b"
+        }
+    }
+};
+
 export const DEFAULT_LANGUAGE: Language = "javascript";
 
 export interface OnLoadCallback {
@@ -15,20 +40,37 @@ export interface OnUnloadCallback {
     (): void;
 }
 
+export interface OnLanguageChangedCallback {
+    (language: Language): void;
+}
+
+export type IValueOptions = {
+    language: Language;
+} & ({ url: string; value?: never } | { url?: never; value: string });
+
+export interface IURLFactory {
+    (language: Language): string | undefined;
+}
+
+export interface IValueFactory {
+    (language: Language): string | undefined;
+}
+
 export interface IEditorOptions {
     element?: Element | Element[] | HTMLCollectionOf<Element>;
-    // Language of the script
+    // Default selected language
     language?: Language;
-    // URL of the script to load
-    url?: string;
-    // Direct script
-    value?: string;
+    // URL of the code to load
+    url?: string | IURLFactory;
+    // Direct code
+    value?: string | IValueFactory;
     // Width of the editor
     width?: string;
     // Height of the editor
     height?: string;
     onLoad?: OnLoadCallback;
     onUnload?: OnUnloadCallback;
+    onLanguageChanged?: OnLanguageChangedCallback;
 }
 
 export interface IEditorInstance {
@@ -68,6 +110,11 @@ export interface IEditor {
     onUnload(callback?: OnUnloadCallback): void;
 
     /**
+     * Register the onLanguageChanged callback.
+     */
+    onLanguageChanged(callback?: OnLanguageChangedCallback): void;
+
+    /**
      * Remove the editor from document.
      */
     remove(): void;
@@ -102,9 +149,8 @@ const STYLES = {
         "flex-direction": "row",
         gap: "0.5em"
     },
-    language: {
+    languages: {
         "font-weight": "bold",
-        color: "#4e6c8b",
         "flex-grow": "1",
         "text-align": "right"
     },
@@ -117,17 +163,20 @@ const STYLES = {
 export class Editor implements IEditor {
     private _factory: IEditorFactory;
     private _options: IEditorOptions;
+    // Last URL loaded
+    private _url?: string;
+    // Cached code by language
+    private _cachedValue = new Map<Language, string | undefined>();
     private _ui: {
         element?: HTMLElement;
         base?: HTMLDivElement;
         toolbar?: HTMLDivElement;
         loadButton?: HTMLInputElement;
         unloadButton?: HTMLInputElement;
+        languageSelect?: HTMLSelectElement;
         wrapper?: HTMLDivElement;
         editor?: IEditorInstance;
     } = {};
-    private _onLoadCallback?: OnLoadCallback;
-    private _onUnloadCallback?: OnUnloadCallback;
 
     constructor(
         factory: IEditorFactory,
@@ -136,9 +185,6 @@ export class Editor implements IEditor {
     ) {
         this._factory = factory;
         this._options = options;
-
-        this._onLoadCallback = options.onLoad;
-        this._onUnloadCallback = options.onUnload;
 
         if (isHTMLElement(element)) {
             this._ui.element = element as HTMLElement;
@@ -218,13 +264,25 @@ export class Editor implements IEditor {
         }
 
         {
-            const span = createElement(
-                "span",
-                "moroboxai-language"
-            ) as HTMLSpanElement;
-            Object.assign(span.style, STYLES["language"]);
-            span.textContent = "Javascript";
-            this._ui.toolbar.appendChild(span);
+            const div = createElement(
+                "div",
+                "moroboxai-languages"
+            ) as HTMLDivElement;
+            Object.assign(div.style, STYLES["languages"]);
+            this._ui.toolbar!.appendChild(div);
+
+            const select = createElement("select") as HTMLSelectElement;
+            select.onchange = (ev) =>
+                this._notifyLanguageChanged(select.value as Language);
+            div.appendChild(select);
+            this._ui.languageSelect = select;
+
+            Object.values(LANGUAGE_OPTIONS).forEach((options) => {
+                const child = createElement("option") as HTMLOptionElement;
+                child.value = options.language;
+                child.textContent = options.name;
+                select.appendChild(child);
+            });
         }
 
         {
@@ -233,20 +291,30 @@ export class Editor implements IEditor {
                 language: this._options.language || DEFAULT_LANGUAGE
             });
 
-            this._ui.editor.value = this._options.value || "";
-            this.url = this._options.url;
+            this._update({
+                language: this.language,
+                url: this._options.url,
+                value: this._options.value
+            });
         }
     }
 
     private _notifyLoad() {
-        if (this._onLoadCallback) {
-            this._onLoadCallback("javascript", this.value);
+        if (this._options.onLoad) {
+            this._options.onLoad("javascript", this.value);
         }
     }
 
     private _notifyUnload() {
-        if (this._onUnloadCallback) {
-            this._onUnloadCallback();
+        if (this._options.onUnload) {
+            this._options.onUnload();
+        }
+    }
+
+    private _notifyLanguageChanged(language: Language) {
+        this.language = language;
+        if (this._options.onLanguageChanged) {
+            this._options.onLanguageChanged(language);
         }
     }
 
@@ -260,24 +328,20 @@ export class Editor implements IEditor {
     }
 
     set language(value: Language) {
-        if (this._ui.editor !== undefined) {
-            this._ui.editor.language = value;
-        }
+        this._update({
+            language: value
+        });
     }
 
     get url(): string | undefined {
-        return this._options.url;
+        return this._url;
     }
 
-    set url(value: string | undefined) {
-        this._options.url = value;
-        if (this._options.url === undefined) {
-            return;
-        }
-
-        fetch(this._options.url)
-            .then((response) => response.text())
-            .then((text) => (this.value = text));
+    set url(value: string | IURLFactory) {
+        this._update({
+            language: this.language,
+            url: value
+        });
     }
 
     get value(): string {
@@ -288,18 +352,103 @@ export class Editor implements IEditor {
         return "";
     }
 
-    set value(text: string) {
-        if (this._ui.editor !== undefined) {
-            this._ui.editor.value = text;
+    set value(value: string | IValueFactory) {
+        this._update({
+            language: this.language,
+            value
+        });
+    }
+
+    /**
+     * Update the language and or URL/value.
+     * @param {object} options - options
+     */
+    private _update(options: {
+        language?: Language;
+        url?: string | IURLFactory;
+        value?: string | IValueFactory;
+    }) {
+        const forceValueUpdate =
+            options.url !== undefined || options.value !== undefined;
+        if (forceValueUpdate) {
+            this._options.url = options.url;
+            this._options.value = options.value;
         }
+
+        const newLanguage = options.language ?? this.language;
+        const newURL = this._options.url;
+        const newValue = this._options.value;
+
+        new Promise<string | undefined>((resolve, reject) => {
+            if (!forceValueUpdate) {
+                const cachedValue = this._cachedValue.get(newLanguage);
+                if (cachedValue !== undefined) {
+                    return resolve(cachedValue);
+                }
+            }
+
+            // The URL changed
+            if (newURL !== undefined) {
+                // Read new URL from options
+                let url: string | undefined = undefined;
+                if (typeof newURL === "string") {
+                    url = newURL;
+                } else if (typeof newURL === "function") {
+                    url = newURL(newLanguage);
+                }
+
+                if (url === undefined) {
+                    return resolve(undefined);
+                }
+
+                // We allow to define a generic URL such as
+                // https://.../agent.* where * is replaced by the
+                // extension of selected language
+                url = url.replace("*", LANGUAGE_OPTIONS[newLanguage].ext);
+
+                return fetch(url)
+                    .then((response) => response.text())
+                    .then((value) => {
+                        return resolve(value);
+                    });
+            }
+
+            // Check in options
+            let value: string | undefined = undefined;
+            if (value === undefined && newValue !== undefined) {
+                if (typeof newValue === "string") {
+                    value = newValue;
+                } else if (typeof newValue === "function") {
+                    value = newValue(newLanguage);
+                }
+            }
+
+            return resolve(value);
+        }).then((value) => {
+            const oldValue = this.value;
+            if (oldValue !== undefined) {
+                this._cachedValue.set(this.language, oldValue);
+            }
+
+            if (this._ui.editor !== undefined) {
+                this._ui.editor.language = newLanguage;
+                if (value !== undefined) {
+                    this._ui.editor.value = value;
+                }
+            }
+        });
     }
 
     onLoad(callback?: OnLoadCallback): void {
-        this._onLoadCallback = callback;
+        this._options.onLoad = callback;
     }
 
     onUnload(callback?: OnUnloadCallback): void {
-        this._onUnloadCallback = callback;
+        this._options.onUnload = callback;
+    }
+
+    onLanguageChanged(callback?: OnLanguageChangedCallback): void {
+        this._options.onLanguageChanged = callback;
     }
 
     remove() {

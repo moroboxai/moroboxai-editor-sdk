@@ -40,11 +40,11 @@
              * Get/Set the value of the textarea.
              */
             get value() {
-                return this.textArea.textContent;
+                return this.textArea.value;
             }
 
             set value(code) {
-                this.textArea.textContent = code;
+                this.textArea.value = code;
             }
 
             /**
@@ -68,12 +68,13 @@
                     document.getElementById("editor"),
                     // Options for the player
                     {
-                        url: "https://raw.githubusercontent.com/moroboxai/moroboxai-games/master/pong/agent.js",
+                        url: "https://raw.githubusercontent.com/moroboxai/moroboxai-games/master/pong/agent.*",
                         width: "500px",
                         height: "400px",
                         onLoad: (language, code) =>
                             console.log("load", language, code),
-                        onUnload: () => console.log("unload")
+                        onUnload: () => console.log("unload"),
+                        onLanguageChanged: (language) => console.log("selected language", language)
                     }
                 );
 
