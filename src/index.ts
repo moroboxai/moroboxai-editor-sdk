@@ -288,8 +288,10 @@ export class Editor implements IEditor {
         {
             this._ui.editor = this._factory({
                 element: this._ui.wrapper,
-                language: this._options.language || DEFAULT_LANGUAGE
+                language: this._options.language ?? DEFAULT_LANGUAGE
             });
+
+            this._ui.languageSelect.value = this.language;
 
             this._update({
                 language: this.language,
@@ -301,7 +303,7 @@ export class Editor implements IEditor {
 
     private _notifyLoad() {
         if (this._options.onLoad) {
-            this._options.onLoad("javascript", this.value);
+            this._options.onLoad(this.language, this.value);
         }
     }
 
