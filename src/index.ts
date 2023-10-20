@@ -5,13 +5,13 @@ export const VERSION: string = "__VERSION__";
 
 export type Language = "javascript" | "lua";
 
-interface ILanguageOptions {
+interface LanguageOptions {
     name: string;
     language: Language;
     ext: string;
     style: any;
 }
-const LANGUAGE_OPTIONS: { [language: string]: ILanguageOptions } = {
+const LANGUAGE_OPTIONS: { [language: string]: LanguageOptions } = {
     javascript: {
         name: "Javascript",
         language: "javascript",
@@ -32,11 +32,16 @@ const LANGUAGE_OPTIONS: { [language: string]: ILanguageOptions } = {
 
 export const DEFAULT_LANGUAGE: Language = "javascript";
 
-export interface OnLoadCallback {
-    (language: Language, value: string): void;
+export interface OnRunOptions {
+    language?: Language;
+    script: string;
 }
 
-export interface OnUnloadCallback {
+export interface OnRunCallback {
+    (options: OnRunOptions): void;
+}
+
+export interface OnStopCallback {
     (): void;
 }
 
@@ -44,32 +49,28 @@ export interface OnLanguageChangedCallback {
     (language: Language): void;
 }
 
-export type IValueOptions = {
-    language: Language;
-} & ({ url: string; value?: never } | { url?: never; value: string });
-
-export interface IURLFactory {
+export interface URLFactory {
     (language: Language): string | undefined;
 }
 
-export interface IValueFactory {
+export interface ValueFactory {
     (language: Language): string | undefined;
 }
 
-export interface IEditorOptions {
+export interface EditorOptions {
     element?: Element | Element[] | HTMLCollectionOf<Element>;
     // Default selected language
     language?: Language;
     // URL of the code to load
-    url?: string | IURLFactory;
+    url?: string | URLFactory;
     // Direct code
-    value?: string | IValueFactory;
+    value?: string | ValueFactory;
     // Width of the editor
     width?: string;
     // Height of the editor
     height?: string;
-    onLoad?: OnLoadCallback;
-    onUnload?: OnUnloadCallback;
+    onRun?: OnRunCallback;
+    onStop?: OnStopCallback;
     onLanguageChanged?: OnLanguageChangedCallback;
 }
 
@@ -79,13 +80,13 @@ export interface IEditorInstance {
     remove(): void;
 }
 
-export interface IEditorFactoryOptions {
+export interface EditorFactoryOptions {
     element: HTMLElement;
     language: Language;
 }
 
 export interface IEditorFactory {
-    (options: IEditorFactoryOptions): IEditorInstance;
+    (options: EditorFactoryOptions): IEditorInstance;
 }
 
 export interface IEditor {
@@ -99,15 +100,14 @@ export interface IEditor {
     value: string;
 
     /**
-     * Register the onLoad callback.
-     * @param {Function} callback - Callback
+     * Register the onRun callback.
      */
-    onLoad(callback?: OnLoadCallback): void;
+    onRun(callback?: OnRunCallback): void;
 
     /**
-     * Register the onUnload callback.
+     * Register the onStop callback.
      */
-    onUnload(callback?: OnUnloadCallback): void;
+    onStop(callback?: OnStopCallback): void;
 
     /**
      * Register the onLanguageChanged callback.
@@ -162,7 +162,7 @@ const STYLES = {
 
 export class Editor implements IEditor {
     private _factory: IEditorFactory;
-    private _options: IEditorOptions;
+    private _options: EditorOptions;
     // Last URL loaded
     private _url?: string;
     // Cached code by language
@@ -171,8 +171,8 @@ export class Editor implements IEditor {
         element?: HTMLElement;
         base?: HTMLDivElement;
         toolbar?: HTMLDivElement;
-        loadButton?: HTMLInputElement;
-        unloadButton?: HTMLInputElement;
+        runButton?: HTMLInputElement;
+        stopButton?: HTMLInputElement;
         languageSelect?: HTMLSelectElement;
         wrapper?: HTMLDivElement;
         editor?: IEditorInstance;
@@ -181,7 +181,7 @@ export class Editor implements IEditor {
     constructor(
         factory: IEditorFactory,
         element: Element,
-        options: IEditorOptions
+        options: EditorOptions
     ) {
         this._factory = factory;
         this._options = options;
@@ -248,18 +248,18 @@ export class Editor implements IEditor {
         {
             const input = createElement("input") as HTMLInputElement;
             input.type = "button";
-            input.value = "Load";
-            input.onclick = () => this._notifyLoad();
-            this._ui.loadButton = input;
+            input.value = "Run";
+            input.onclick = () => this._notifyRun();
+            this._ui.runButton = input;
             this._ui.toolbar.appendChild(input);
         }
 
         {
             const input = createElement("input") as HTMLInputElement;
             input.type = "button";
-            input.value = "Unload";
-            input.onclick = () => this._notifyUnload();
-            this._ui.unloadButton = input;
+            input.value = "Stop";
+            input.onclick = () => this._notifyStop();
+            this._ui.stopButton = input;
             this._ui.toolbar.appendChild(input);
         }
 
@@ -301,15 +301,18 @@ export class Editor implements IEditor {
         }
     }
 
-    private _notifyLoad() {
-        if (this._options.onLoad) {
-            this._options.onLoad(this.language, this.value);
+    private _notifyRun() {
+        if (this._options.onRun) {
+            this._options.onRun({
+                language: this.language,
+                script: this.value
+            });
         }
     }
 
-    private _notifyUnload() {
-        if (this._options.onUnload) {
-            this._options.onUnload();
+    private _notifyStop() {
+        if (this._options.onStop) {
+            this._options.onStop();
         }
     }
 
@@ -339,7 +342,7 @@ export class Editor implements IEditor {
         return this._url;
     }
 
-    set url(value: string | IURLFactory) {
+    set url(value: string | URLFactory) {
         this._update({
             language: this.language,
             url: value
@@ -354,7 +357,7 @@ export class Editor implements IEditor {
         return "";
     }
 
-    set value(value: string | IValueFactory) {
+    set value(value: string | ValueFactory) {
         this._update({
             language: this.language,
             value
@@ -367,8 +370,8 @@ export class Editor implements IEditor {
      */
     private _update(options: {
         language?: Language;
-        url?: string | IURLFactory;
-        value?: string | IValueFactory;
+        url?: string | URLFactory;
+        value?: string | ValueFactory;
     }) {
         const forceValueUpdate =
             options.url !== undefined || options.value !== undefined;
@@ -441,12 +444,12 @@ export class Editor implements IEditor {
         });
     }
 
-    onLoad(callback?: OnLoadCallback): void {
-        this._options.onLoad = callback;
+    onRun(callback?: OnRunCallback): void {
+        this._options.onRun = callback;
     }
 
-    onUnload(callback?: OnUnloadCallback): void {
-        this._options.onUnload = callback;
+    onStop(callback?: OnStopCallback): void {
+        this._options.onStop = callback;
     }
 
     onLanguageChanged(callback?: OnLanguageChangedCallback): void {
@@ -470,15 +473,15 @@ export class Editor implements IEditor {
  * Get default configured editor options.
  * @returns {IEditorOptions} Default options
  */
-export function defaultOptions(): IEditorOptions {
+export function defaultOptions(): EditorOptions {
     return {
         language: DEFAULT_LANGUAGE
     };
 }
 
 function isEditorOptions(
-    _?: IEditorOptions | Element | Element[] | HTMLCollectionOf<Element>
-): _ is IEditorOptions {
+    _?: EditorOptions | Element | Element[] | HTMLCollectionOf<Element>
+): _ is EditorOptions {
     return _ !== undefined && !isElementArray(_) && !("className" in _);
 }
 
@@ -487,7 +490,7 @@ function isHTMLElement(_: Element | HTMLElement): _ is HTMLElement {
 }
 
 function isElementArray(
-    _: IEditorOptions | Element | Element[] | HTMLCollectionOf<Element>
+    _: EditorOptions | Element | Element[] | HTMLCollectionOf<Element>
 ): _ is Element[] | HTMLCollectionOf<Element> {
     return "length" in _;
 }
@@ -495,7 +498,7 @@ function isElementArray(
 function createEditor(
     factory: IEditorFactory,
     element: Element,
-    options: IEditorOptions
+    options: EditorOptions
 ): IEditor {
     return new Editor(factory, element, options);
 }
@@ -509,16 +512,16 @@ function createEditor(
 export function init(
     factory: IEditorFactory,
     element:
-        | IEditorOptions
+        | EditorOptions
         | Element
         | Element[]
         | HTMLCollectionOf<Element>
         | undefined,
-    options?: IEditorOptions
+    options?: EditorOptions
 ): IEditor | IEditor[] {
     let _elements: undefined | Element | Element[] | HTMLCollectionOf<Element> =
         undefined;
-    let _options: IEditorOptions = defaultOptions();
+    let _options: EditorOptions = defaultOptions();
 
     if (isEditorOptions(element)) {
         options = element;

@@ -11,8 +11,7 @@
         <div class="info horizontal">
             <button id="attach"></button>
         </div>
-        <div class="info">
-        </div>
+        <div class="info"></div>
     </body>
     <script type="module">
         import * as MoroboxAIEditorSDK from "./src/index.ts";
@@ -72,10 +71,10 @@
                         language: "lua",
                         width: "500px",
                         height: "400px",
-                        onLoad: (language, code) =>
-                            console.log("load", language, code),
-                        onUnload: () => console.log("unload"),
-                        onLanguageChanged: (language) => console.log("selected language", language)
+                        onRun: (options) => console.log("run", options),
+                        onStop: () => console.log("stop"),
+                        onLanguageChanged: (language) =>
+                            console.log("selected language", language)
                     }
                 );
 
