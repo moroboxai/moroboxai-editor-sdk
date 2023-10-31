@@ -77,6 +77,7 @@ export interface EditorOptions {
 export interface IEditorInstance {
     language: Language;
     value: string;
+    resize(): void;
     remove(): void;
 }
 
@@ -113,6 +114,11 @@ export interface IEditor {
      * Register the onLanguageChanged callback.
      */
     onLanguageChanged(callback?: OnLanguageChangedCallback): void;
+
+    /**
+     * Resize the editor.
+     */
+    resize(): void;
 
     /**
      * Remove the editor from document.
@@ -454,6 +460,10 @@ export class Editor implements IEditor {
 
     onLanguageChanged(callback?: OnLanguageChangedCallback): void {
         this._options.onLanguageChanged = callback;
+    }
+
+    resize() {
+        this._ui.editor?.resize();
     }
 
     remove() {
