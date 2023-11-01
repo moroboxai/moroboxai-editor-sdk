@@ -1,17 +1,28 @@
 <html>
     <head>
         <title>MoroboxAIEditorSDK Sample</title>
+        <link
+            href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css"
+            rel="stylesheet"
+            integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC"
+            crossorigin="anonymous"
+        />
     </head>
 
     <body class="vertical">
-        <div class="horizontal">
-            <!-- Root element the editor will be attached to -->
-            <div id="editor"></div>
+        <div class="container">
+            <div class="row justify-content-center align-items-center">
+                <div class="col-auto"><div id="editor"></div></div>
+            </div>
+            <div class="row justify-content-center">
+                <div class="col-auto">
+                    <button id="attach"></button>
+                </div>
+            </div>
+            <div class="row justify-content-center">
+                <div class="col-auto info"></div>
+            </div>
         </div>
-        <div class="info horizontal">
-            <button id="attach"></button>
-        </div>
-        <div class="info"></div>
     </body>
     <script type="module">
         import * as MoroboxAIEditorSDK from "./src/index.ts";
@@ -127,8 +138,11 @@
         }
 
         .info {
-            margin-top: 2em;
             text-align: center;
+        }
+
+        .row + .row {
+            margin-top: 1em;
         }
     </style>
 </html>
